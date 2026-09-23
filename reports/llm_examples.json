@@ -1,0 +1,98 @@
+[
+  {
+    "context": {
+      "customer_id": "1393-IMKZG",
+      "churn_probability": "86%",
+      "risk_level": "HIGH",
+      "expected_margin_loss_next_12_months": "$296",
+      "tenure_months": 1,
+      "contract": "Month-to-month",
+      "monthly_charges": "$95.85",
+      "internet_service": "Fiber optic",
+      "payment_method": "Electronic check",
+      "risk_factors": [
+        "Short tenure (only 1 month)",
+        "Month-to-month contract",
+        "Fiber-optic internet plan",
+        "Low lifetime spend so far ($96)"
+      ],
+      "protective_factors": [
+        "Has the tech support add-on",
+        "Not a senior citizen"
+      ],
+      "approved_actions": [
+        "Early-life onboarding call: check the setup, walk through the bill",
+        "Offer a discounted 12-month contract"
+      ]
+    },
+    "brief": {
+      "summary": "1393-IMKZG is HIGH risk with a churn probability of 86%, putting about $296 of margin at stake over the next year. The main drivers are short tenure (only 1 month), month-to-month contract and fiber-optic internet plan. Lead with: early-life onboarding call: check the setup, walk through the bill.",
+      "customer_message": "Hi, thank you for being with us. We'd like to set up a quick call to make sure everything works as it should and walk you through your bill. Just reply to this message or give us a call and we'll sort it out. - The Customer Care Team",
+      "source": "template"
+    }
+  },
+  {
+    "context": {
+      "customer_id": "2081-VEYEH",
+      "churn_probability": "76%",
+      "risk_level": "HIGH",
+      "expected_margin_loss_next_12_months": "$294",
+      "tenure_months": 3,
+      "contract": "Month-to-month",
+      "monthly_charges": "$107.95",
+      "internet_service": "Fiber optic",
+      "payment_method": "Electronic check",
+      "risk_factors": [
+        "Short tenure (only 3 months)",
+        "Month-to-month contract",
+        "Fiber-optic internet plan",
+        "High monthly bill of $107.95, above 95% of customers"
+      ],
+      "protective_factors": [
+        "Has the tech support add-on",
+        "Single phone line"
+      ],
+      "approved_actions": [
+        "Early-life onboarding call: check the setup, walk through the bill",
+        "Offer a discounted 12-month contract"
+      ]
+    },
+    "brief": {
+      "summary": "2081-VEYEH is HIGH risk with a churn probability of 76%, putting about $294 of margin at stake over the next year. The main drivers are short tenure (only 3 months), month-to-month contract and fiber-optic internet plan. Lead with: early-life onboarding call: check the setup, walk through the bill.",
+      "customer_message": "Hi, thank you for being with us for the past 3 months. We'd like to set up a quick call to make sure everything works as it should and walk you through your bill. Just reply to this message or give us a call and we'll sort it out. - The Customer Care Team",
+      "source": "template"
+    }
+  },
+  {
+    "context": {
+      "customer_id": "1941-HOSAM",
+      "churn_probability": "87%",
+      "risk_level": "HIGH",
+      "expected_margin_loss_next_12_months": "$282",
+      "tenure_months": 1,
+      "contract": "Month-to-month",
+      "monthly_charges": "$90.10",
+      "internet_service": "Fiber optic",
+      "payment_method": "Electronic check",
+      "risk_factors": [
+        "Short tenure (only 1 month)",
+        "Month-to-month contract",
+        "Fiber-optic internet plan",
+        "Pays by electronic check"
+      ],
+      "protective_factors": [
+        "Single phone line",
+        "Not a senior citizen"
+      ],
+      "approved_actions": [
+        "Early-life onboarding call: check the setup, walk through the bill",
+        "Offer a discounted 12-month contract"
+      ]
+    },
+    "brief": {
+      "summary": "1941-HOSAM is HIGH risk with a churn probability of 87%, putting about $282 of margin at stake over the next year. The main drivers are short tenure (only 1 month), month-to-month contract and fiber-optic internet plan. Lead with: early-life onboarding call: check the setup, walk through the bill.",
+      "customer_message": "Hi, thank you for being with us. We'd like to set up a quick call to make sure everything works as it should and walk you through your bill. Just reply to this message or give us a call and we'll sort it out. - The Customer Care Team",
+      "source": "template"
+    }
+  }
+]

@@ -1,0 +1,14 @@
+# Runtime: pipeline + dashboard. Versions are pinned because models/churn_model.pkl
+# is a pickled scikit-learn/XGBoost pipeline and must be loaded by the same versions.
+pandas==3.0.6
+numpy==2.4.6
+scipy==1.17.1
+scikit-learn==1.9.1
+xgboost==3.2.0
+shap==0.51.0
+joblib==1.6.0
+matplotlib==3.11.2
+plotly==7.1.0
+streamlit==1.64.0
+anthropic==1.8.0
+pydantic==2.13.5

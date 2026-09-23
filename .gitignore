@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Environments
+venv/
+.venv/
+.env
+
+# Secrets - never commit API keys
+.streamlit/secrets.toml
+
+# Rebuilt from data/raw by the pipeline (or on first dashboard start)
+data/churn.db
+
+# OS / editor / local tooling
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/

@@ -1,0 +1,26 @@
+feature,mean_abs_shap,label
+contract,0.6988302252817903,Contract type
+tenure,0.4952744321137067,Tenure
+internet_service,0.39127884873260116,Internet service
+payment_method,0.1538906230815289,Payment method
+paperless_billing,0.11378125914433464,Paperless billing
+monthly_charges,0.10723749097894253,Monthly charges
+avg_monthly_spend,0.08899518233355891,Avg. monthly spend (lifetime)
+streaming_movies,0.07950656610351554,Streaming movies
+online_security,0.07842973661220888,Online security
+total_charges,0.07237202226296319,Total charges to date
+streaming_tv,0.0689079105033127,Streaming TV
+multiple_lines,0.055683559516475745,Multiple lines
+tech_support,0.05026748556557508,Tech support
+charge_per_service,0.05000203775419362,Price per service
+senior_citizen,0.04256359729019312,Senior citizen
+phone_service,0.034205307131777295,Phone service
+spend_trend_ratio,0.023285896726877336,Current bill vs. lifetime avg.
+dependents,0.018443617394658347,Dependents
+online_backup,0.010245779361078643,Online backup
+service_count,0.003794645636836888,Number of services
+gender,0.001529823791717975,Gender
+family_account,0.001216960152440621,Family account
+device_protection,0.0006215771555479542,Device protection
+has_protection_bundle,0.0003353682169514857,Security + support bundle
+partner,0.0001307403005199704,Partner
