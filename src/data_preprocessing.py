@@ -146,8 +146,16 @@ def write_table(df: pd.DataFrame, table: str, db_path: Path = config.DB_PATH) ->
 
 
 def write_scores(scored: pd.DataFrame, db_path: Path = config.DB_PATH) -> None:
-    """Publish model scores to SQL as `customer_scores` (used by 03_business_queries)."""
+    """Publish model scores to SQL as `customer_scores` (used by 03_business_queries).
+
+    Indexed on customer_id: every BI query joins it to `customers`, and without the
+    index SQLite falls back to a nested-loop scan of both tables.
+    """
     write_table(scored[config.SCORE_TABLE_COLUMNS], "customer_scores", db_path)
+    with closing(sqlite3.connect(db_path)) as con:
+        con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_scores_id "
+                    "ON customer_scores (customer_id)")
+        con.commit()
 
 
 if __name__ == "__main__":

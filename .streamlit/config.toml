@@ -1,9 +1,26 @@
 [theme]
-base = "light"
-primaryColor = "#2a78d6"
-backgroundColor = "#fcfcfb"
-secondaryBackgroundColor = "#f3f2ef"
-textColor = "#0b0b0b"
+base = "dark"
+primaryColor = "#9085e9"
+backgroundColor = "#0a0f1e"
+secondaryBackgroundColor = "#131b30"
+textColor = "#e8ecf6"
+linkColor = "#8fb8ff"
+borderColor = "#1f2a44"
+dataframeBorderColor = "#1f2a44"
+showWidgetBorder = true
+baseRadius = "0.75rem"
+buttonRadius = "0.65rem"
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+headingFont = "Space Grotesk:https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap"
+codeFont = "JetBrains Mono:https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
+headingFontWeights = [700, 650, 600, 600, 600, 600]
+# Validated colour-blind-safe categorical order, dark-mode steps
+chartCategoricalColors = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"]
+
+[theme.sidebar]
+backgroundColor = "#080c18"
+secondaryBackgroundColor = "#111a2e"
+borderColor = "#1a2440"
 
 [client]
 toolbarMode = "minimal"

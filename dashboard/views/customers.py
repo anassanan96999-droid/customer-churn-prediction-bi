@@ -1,11 +1,16 @@
 import plotly.graph_objects as go
 import streamlit as st
 
-from common import (BAR, CHURNED, STAYED, chart, hbar, load_scored, query, show_sql, style)
+from common import (BAR, CHURNED, SEQUENTIAL, STAYED, chart, hbar, load_scored, query, show_sql,
+                    style)
+from theme import hero, section
 
-st.title("Customer & churn analysis")
-st.caption("Every segment chart on this page is a named query in sql/03_business_queries.sql, "
-           "run live against the SQLite analytical layer.")
+hero("Customer & churn analysis",
+     "Who churns, sliced every way that matters. Every segment chart on this page is a named "
+     "query in sql/03_business_queries.sql, run live against the SQLite analytical layer - "
+     "open 'SQL behind this chart' to see it.",
+     eyebrow="SQL-powered business intelligence",
+     chips=["7 segment views", "Contract x internet heatmap", "Churn timing", "Demographics"])
 
 kpi = query("kpi_overview").iloc[0]
 overall = kpi["churn_rate_pct"]
@@ -45,7 +50,7 @@ with left:
         pivot.index, pivot.columns]
     fig = go.Figure(go.Heatmap(
         z=pivot.values, x=pivot.columns, y=pivot.index, zmin=0, zmax=60,
-        colorscale=[[0, "#f0efec"], [1, "#256abf"]], colorbar=dict(ticksuffix="%", len=0.8),
+        colorscale=SEQUENTIAL, colorbar=dict(ticksuffix="%", len=0.8),
         text=[[f"{v:.0f}%<br>n={n:,}" for v, n in zip(r1, r2)]
               for r1, r2 in zip(pivot.values, counts.values)],
         texttemplate="%{text}", hovertemplate="%{y} + %{x}: %{z:.1f}% churn<extra></extra>"))
@@ -69,7 +74,7 @@ with right:
     show_sql("churn_by_tenure_month")
 
 st.divider()
-st.subheader("Spending behaviour and demographics")
+section("Spending behaviour and demographics")
 scored = load_scored()
 left, right = st.columns(2)
 with left:

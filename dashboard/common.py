@@ -21,31 +21,64 @@ from src.economics import (expected_loss, expected_net_gain, optimal_threshold, 
 from src.predict import load_bundle, shap_frame  # noqa: E402
 
 # --------------------------------------------------------------------------- #
-# Palette - validated categorical order, blue<->red diverging, status for risk
+# Palette (dark theme) - validated colour-blind-safe categorical order in its
+# dark-surface steps, blue<->red diverging for SHAP, status colours for risk.
+# All series clear 3:1 contrast on the #0a0f1e background; text clears 4.5:1.
 # --------------------------------------------------------------------------- #
-INK, INK_2, INK_3, GRID = "#0b0b0b", "#52514e", "#8a8984", "#e6e5e1"
-SERIES = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
-BAR, BAR_MUTED = SERIES[0], "#b7d3f6"
+INK, INK_2, INK_3 = "#e8ecf6", "#a4adc4", "#7c87a3"
+GRID, SURFACE, CARD = "rgba(164,173,196,0.12)", "#0a0f1e", "#131b30"
+SERIES = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"]
+BAR, BAR_MUTED = SERIES[0], "#35527d"
 STAYED, CHURNED = SERIES[0], SERIES[1]
-RISK_UP, RISK_DOWN = "#e34948", "#2a78d6"
+RISK_UP, RISK_DOWN = "#e66767", "#3987e5"
 RISK_COLORS = {"HIGH": "#d03b3b", "MEDIUM": "#ec835a", "LOW": "#0ca30c"}
 RISK_ORDER = ["HIGH", "MEDIUM", "LOW"]
+# One hue, dark -> brighter. Capped at a mid-blue so white cell labels stay readable.
+SEQUENTIAL = [[0, "#16233d"], [1, "#2a78d6"]]
 
 
 def style(fig: go.Figure, height: int = 340, title: str | None = None,
           legend: bool = True) -> go.Figure:
     fig.update_layout(
-        template="plotly_white", height=height, title=title,
+        template="plotly_dark", height=height, title=title,
         margin=dict(l=8, r=16, t=48 if title else 16, b=8),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, Segoe UI, Helvetica, Arial, sans-serif", color=INK_2, size=12),
-        title_font=dict(size=15, color=INK), title_x=0, title_xanchor="left",
-        hoverlabel=dict(bgcolor="white", font_color=INK, bordercolor=GRID),
+        title_font=dict(family="Space Grotesk, Inter, sans-serif", size=15, color=INK),
+        title_x=0, title_xanchor="left",
+        hoverlabel=dict(bgcolor=CARD, font_color=INK, bordercolor="#2c3a5c",
+                        font_family="Inter, sans-serif"),
         showlegend=legend, bargap=0.35,
-        legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, title_text=""),
+        legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, title_text="",
+                    font=dict(color=INK_2)),
     )
     fig.update_xaxes(gridcolor=GRID, zeroline=False, linecolor=GRID, ticks="")
     fig.update_yaxes(gridcolor=GRID, zeroline=False, linecolor=GRID, ticks="")
+    return fig
+
+
+def gauge(probability: float, threshold: float | None = None, height: int = 230,
+          title: str = "Churn probability") -> go.Figure:
+    """Radial risk gauge: bands for LOW / MEDIUM / HIGH, a marker for the contact threshold."""
+    level = config.risk_level(probability)
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number", value=probability * 100,
+        number=dict(suffix="%", valueformat=".0f", font=dict(size=42, color=INK,
+                                                             family="Space Grotesk, sans-serif")),
+        title=dict(text=title, font=dict(size=13, color=INK_2)),
+        gauge=dict(
+            axis=dict(range=[0, 100], ticksuffix="%", tickcolor=INK_3, tickwidth=1,
+                      tickfont=dict(color=INK_3, size=10)),
+            bar=dict(color=RISK_COLORS[level], thickness=0.28),
+            bgcolor="rgba(0,0,0,0)", borderwidth=0,
+            steps=[dict(range=[0, 30], color="rgba(12,163,12,0.10)"),
+                   dict(range=[30, 60], color="rgba(236,131,90,0.12)"),
+                   dict(range=[60, 100], color="rgba(208,59,59,0.14)")],
+            threshold=None if threshold is None else dict(
+                line=dict(color=INK, width=2), thickness=0.8, value=threshold * 100),
+        )))
+    fig.update_layout(height=height, margin=dict(l=24, r=24, t=48, b=8),
+                      paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter, sans-serif"))
     return fig
 
 
@@ -75,6 +108,18 @@ def show_sql(name: str) -> None:
 
 def money(v: float) -> str:
     return f"-${abs(v):,.0f}" if v < 0 else f"${v:,.0f}"
+
+
+def money_short(v: float) -> str:
+    """Compact money for KPI tiles: $820.4K, $1.2M."""
+    sign, a = ("-" if v < 0 else ""), abs(v)
+    if a >= 1e6:
+        return f"{sign}${a / 1e6:.2f}M"
+    if a >= 1e5:
+        return f"{sign}${a / 1e3:,.0f}K"
+    if a >= 1e4:
+        return f"{sign}${a / 1e3:.1f}K"
+    return f"{sign}${a:,.0f}"
 
 
 def md(text: str) -> str:

@@ -4,17 +4,21 @@ import streamlit as st
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import precision_recall_curve, roc_curve
 
-from common import BAR, INK_3, SERIES, chart, load_csv, load_report, style
+from common import BAR, INK_3, SEQUENTIAL, SERIES, chart, load_csv, load_report, style
+from theme import hero, section
 
-st.title("Model performance")
 report = load_report()
 champ = report["champion"]
 models = report["models"]
-st.markdown(
-    f"Five model families were tuned with a 25-draw randomised search and 5-fold stratified "
-    f"cross-validation on the training split ({report['dataset']['train']:,} customers). The "
-    f"champion is picked on **CV ROC-AUC**; the test split ({report['dataset']['test']:,} "
-    f"customers) was scored once, at the end. **Champion: {champ}.**")
+hero("Model performance",
+     f"Five model families, each tuned with a 25-draw randomised search and 5-fold stratified "
+     f"cross-validation on {report['dataset']['train']:,} training customers. The champion is "
+     f"picked on CV ROC-AUC; the {report['dataset']['test']:,}-customer test split was scored "
+     f"once, at the end.",
+     eyebrow="Rigorous, reproducible evaluation",
+     chips=[f"Champion <b>{champ}</b>",
+            f"Test ROC-AUC <b>{models[champ]['test_at_0.5']['roc_auc']:.3f}</b>",
+            "Calibrated probabilities", "Honest negative results"])
 
 rows = []
 for name, m in models.items():
@@ -57,7 +61,7 @@ roc.update_xaxes(title_text="False positive rate")
 roc.update_yaxes(title_text="True positive rate")
 pr.update_xaxes(title_text="Recall")
 pr.update_yaxes(title_text="Precision")
-inside = dict(orientation="v", bgcolor="rgba(252,252,251,0.85)", xanchor="right", x=0.99)
+inside = dict(orientation="v", bgcolor="rgba(10,15,30,0.80)", xanchor="right", x=0.99)
 with left:   # the lower-right corner of a ROC plot is always empty
     chart(style(roc, 400, "ROC curves (test set)").update_layout(
         legend=dict(**inside, yanchor="bottom", y=0.02)))
@@ -73,7 +77,7 @@ with left:
     z = [[cm["tn"], cm["fp"]], [cm["fn"], cm["tp"]]]
     fig = go.Figure(go.Heatmap(
         z=z, x=["Predicted stay", "Predicted churn"], y=["Actually stayed", "Actually churned"],
-        colorscale=[[0, "#f0efec"], [1, "#256abf"]], showscale=False,
+        colorscale=SEQUENTIAL, showscale=False,
         text=[[f"{v:,}" for v in r] for r in z], texttemplate="%{text}",
         textfont=dict(size=16), hoverinfo="skip"))
     fig.update_yaxes(autorange="reversed", showgrid=False)
@@ -96,10 +100,10 @@ with right:
     st.caption("Expected loss = probability x value only makes sense if a predicted 40% "
                "really means ~40%. Deciles close to the diagonal = trustworthy money numbers.")
 
-st.divider()
+section("Design decisions, tested")
 left, right = st.columns(2)
 with left:
-    st.markdown("##### Class imbalance: re-weight or not?")
+    st.markdown("**Class imbalance: re-weight or not?**")
     imb = pd.DataFrame(report["imbalance_experiment"])
     st.dataframe(imb, hide_index=True, column_config={
         "cv_roc_auc": st.column_config.NumberColumn("CV ROC-AUC", format="%.4f"),
@@ -115,7 +119,7 @@ with left:
                "probabilities, so the models are trained unweighted and imbalance is handled at "
                "the threshold.")
 with right:
-    st.markdown("##### Does the feature engineering help?")
+    st.markdown("**Does the feature engineering help?**")
     abl = pd.DataFrame(report["feature_ablation"])
     st.dataframe(abl, hide_index=True, column_config={
         "cv_roc_auc": st.column_config.NumberColumn("CV ROC-AUC", format="%.4f"),

@@ -1,13 +1,28 @@
-﻿# Customer Churn Prediction & Business Intelligence System
+﻿# Churn Intelligence - Customer Churn Prediction & Business Intelligence System
 
 **Live app:** _add your Streamlit Cloud link here after deploying - see [Deploy](#deploy-to-streamlit-community-cloud)_
+&nbsp;·&nbsp; **Windows:** double-click [`run_dashboard.bat`](run_dashboard.bat)
 
 An end-to-end churn system on the IBM Telco dataset (7,043 customers) that answers the question a
-retention team actually has: **who should we call this week, why are they leaving, and is the
-campaign worth the money?** SQL data layer -> 5 tuned models -> money-optimal decision threshold ->
-SHAP reasons for every customer -> ranked call list -> LLM-written retention briefs -> Streamlit dashboard.
+retention team actually has: **who should we call this week, why are they leaving, what should we
+offer them, and is the campaign worth the money?** SQL data layer -> 5 tuned models -> money-optimal
+decision threshold -> SHAP reasons for every customer -> next-best actions -> scenario simulation ->
+AI Copilot and LLM-written retention briefs, all in a 9-page Streamlit command center.
 
-![Executive overview](reports/figures/dashboard_overview.png)
+![Command center](reports/figures/dashboard_overview.png)
+
+### Features at a glance
+
+| | |
+|---|---|
+| :dart: **Retention targets** | Active customers ranked by expected loss, each with SHAP reasons in plain English, a risk gauge and a ready-to-send retention brief |
+| :bulb: **Next-best action** | Every retention offer tested on the individual customer with the live model: "1-year contract: risk 86% -> 59%, net if accepted ..." |
+| :test_tube: **Scenario Lab** | Simulate contract upgrades, security bundles, auto-pay or discounts for any audience: churners avoided, margin retained, cost, ROI - and a head-to-head strategy comparison |
+| :moneybag: **Campaign economics** | Change offer cost, save rate, horizon or margin and the contact threshold re-optimises live across the whole app |
+| :robot: **AI Copilot** | Ask the data in plain English - Claude writes and runs read-only SQL through tool use and answers with sourced numbers |
+| :computer: **SQL Lab** | Query the analytical database yourself: templates, schema explorer, auto-charts, CSV export (sandboxed: read-only, time-limited) |
+| :shield: **Data-health check** | Uploaded files are scored *and* checked for drift (PSI per feature) against the training data |
+| :bar_chart: **BI & explainability** | SQL-driven segment analysis, SHAP and permutation importance, dependence plots, k-means segments, model diagnostics |
 
 ## Results
 
@@ -24,16 +39,24 @@ Campaign assumptions (all adjustable in the dashboard): a retention offer costs 
 their bill. Held-out figures are for 1,409 test customers; the dashboard also backtests on all
 7,043 out-of-fold scores ($66.4k vs. $54.5k net at 0.32 vs. 0.50).
 
-| Retention targets: reasons, actions and a retention brief per customer | Campaign economics: live threshold optimisation |
+| Retention targets: gauge, SHAP reasons, next-best action, brief | Scenario Lab: price a strategy before spending on it |
 |---|---|
-| ![Retention targets](reports/figures/dashboard_targets.png) | ![Campaign economics](reports/figures/dashboard_economics.png) |
+| ![Retention targets](reports/figures/dashboard_targets.png) | ![Scenario Lab](reports/figures/dashboard_scenarios.png) |
+
+| AI Copilot & SQL Lab | Score new customers with a data-health check |
+|---|---|
+| ![AI Copilot and SQL Lab](reports/figures/dashboard_copilot.png) | ![Score new customers](reports/figures/dashboard_predict.png) |
 
 <details>
 <summary>More dashboard pages</summary>
 
-| Customer & churn analysis (SQL-driven) | Churn drivers & segments |
+| Campaign economics | Customer & churn analysis (SQL-driven) |
 |---|---|
-| ![Customer analysis](reports/figures/dashboard_analysis.png) | ![Churn drivers](reports/figures/dashboard_drivers.png) |
+| ![Campaign economics](reports/figures/dashboard_economics.png) | ![Customer analysis](reports/figures/dashboard_analysis.png) |
+
+| Churn drivers & segments | Model performance |
+|---|---|
+| ![Churn drivers](reports/figures/dashboard_drivers.png) | ![Model performance](reports/figures/dashboard_models.png) |
 
 </details>
 
@@ -148,6 +171,13 @@ refusal the dashboard falls back to a deterministic template, so a fresh clone a
   those features from the original brief were not fabricated; "current bill vs. lifetime average"
   is the closest honest proxy for a usage trend. The IBM data is a single snapshot, so "active
   customers" are those who had not churned by the extract date.
+- **Most retention offers don't pay for themselves at default assumptions** (Scenario Lab, contact
+  list of 1,145 customers, 30% take-up, 12-month margin value). Contract upgrades cut modelled risk
+  the most (48% -> 24% for 1-year, 48% -> 14% for 2-year) but, paid for with one or two free months,
+  cost as much or more than they save (-$2.9K / -$19.8K net). Moving check payers to automatic
+  payment is the only offer that clears its cost (+$3.1K), and a 10% discount barely moves risk
+  (48% -> 47%, -$29.4K): the model sees contract and payment behaviour, not price, as the lever.
+  These are model-based (correlational) estimates - the kind of result to confirm with an A/B test.
 - **The data-quality gate caught something.** A check flagged two customers whose total charges
   were 1.5x tenure x current bill. Both had 2-3 months of tenure, so one plan change explains it;
   they are real accounts and the check now allows one month of slack instead of dropping rows.
@@ -162,9 +192,13 @@ flowchart LR
     D --> E[Champion +<br/>money-optimal threshold<br/>from OOF predictions]
     E --> F[Out-of-fold scores<br/>+ SHAP reasons<br/>for every customer]
     F --> G[(customer_scores<br/>03 BI queries)]
-    G --> H[Streamlit dashboard]
+    G --> H[Streamlit command center]
     F --> I[Claude:<br/>retention brief]
     I --> H
+    E --> S[Scenario Lab +<br/>next-best action<br/>re-score new profiles]
+    S --> H
+    G --> Q[AI Copilot:<br/>Claude + read-only SQL]
+    Q --> H
 ```
 
 ```text
@@ -184,18 +218,30 @@ flowchart LR
 │   ├── explain.py                        SHAP -> plain-English reasons -> playbook actions
 │   ├── segmentation.py                   k-means behavioural segments
 │   ├── llm.py                            Claude retention briefs + template fallback
+│   ├── scenarios.py                      Scenario Lab + next-best action (re-scores new profiles)
+│   ├── copilot.py                        AI Copilot: Claude tool-use loop over read-only SQL
+│   ├── sql_lab.py                        sandboxed SQL: read-only, authorizer, time + row limits
+│   ├── monitoring.py                     data-drift check (PSI) for uploaded files
 │   ├── predict.py                        scoring (python -m src.predict --input file.csv)
 │   ├── visualization.py                  report figures
 │   ├── report.py                         business_report.pdf (python -m src.report)
 │   └── pipeline.py                       runs everything end to end
 ├── notebooks/01-04                       cleaning, EDA + stats tests, features, modelling
-├── dashboard/app.py + views/             7-page Streamlit app
+├── dashboard/app.py, theme.py, views/    9-page Streamlit command center (dark, glass UI)
 ├── models/churn_model.pkl                champion pipeline + threshold + explainer data
 ├── reports/                              business_report.pdf, metrics JSON, figures, tables
-└── tests/                                pytest: economics, SQL layer + features, explanations, LLM fallback
+├── run_dashboard.bat / run_pipeline.bat / run_tests.bat    one-click Windows launchers
+└── tests/                                42 pytest tests: economics, SQL layer, scenarios, drift,
+                                          SQL sandbox attacks, Copilot loop (offline), explanations
 ```
 
 ## Run it locally
+
+**Windows, one click:** double-click **`run_dashboard.bat`**. The first run creates a virtual
+environment and installs the requirements (a few minutes); after that the dashboard opens in your
+browser in seconds. `run_pipeline.bat` retrains everything and `run_tests.bat` runs the test suite.
+
+**Any OS, manually:**
 
 ```bash
 python -m venv venv
@@ -214,15 +260,19 @@ Score a new file from the command line:
 python -m src.predict --input new_customers.csv --output scored.csv
 ```
 
-Optional - LLM briefs: set `ANTHROPIC_API_KEY` in your environment, or copy
-`.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` (git-ignored).
+Optional - AI features (Claude briefs and the Copilot): set `ANTHROPIC_API_KEY` in your
+environment, or copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` (git-ignored).
+Without a key everything else works: briefs come from a deterministic template and the SQL Lab
+replaces the Copilot. The Copilot's tool loop is covered by offline tests with a scripted client;
+`python -m src.pipeline --briefs-only` regenerates the example briefs once a key is set.
 
 ## Deploy to Streamlit Community Cloud
 
 1. Push this repository to GitHub (the model, scored CSV and figures are committed on purpose).
 2. On [share.streamlit.io](https://share.streamlit.io) -> **Create app** -> pick the repo, branch
    `main`, main file **`dashboard/app.py`**, and Python **3.11** under *Advanced settings*.
-3. Optional: under *Secrets* add `ANTHROPIC_API_KEY = "sk-ant-..."` to enable Claude briefs.
+3. Optional: under *Secrets* add `ANTHROPIC_API_KEY = "sk-ant-..."` to enable the Claude briefs
+   and the AI Copilot.
 4. Paste the app URL at the top of this README.
 
 `requirements.txt` pins exact versions because `models/churn_model.pkl` must be loaded by the same
@@ -239,14 +289,17 @@ connected directly to Power BI or any other BI tool.
 
 **Customer Churn Prediction & Business Intelligence System** - Python, SQL, scikit-learn, XGBoost, SHAP, Streamlit, Claude API
 - Built an end-to-end churn system on 7,043 telecom customers: SQL cleaning layer with an automated
-  data-quality gate, 5 tuned models (XGBoost champion, ROC-AUC 0.85), SHAP explanations and an
-  interactive 7-page Streamlit dashboard.
+  data-quality gate, 5 tuned models (XGBoost champion, ROC-AUC 0.85), SHAP explanations and a
+  9-page Streamlit command center with a scenario simulator, drift monitoring and an AI Copilot
+  (Claude tool use over a sandboxed, read-only SQL layer).
 - Chose the decision threshold by campaign economics instead of accuracy, increasing retention-campaign
   net value by 19% on held-out data (31% with a per-customer expected-value rule) and reaching 74% of
   churners instead of 52%.
 - Ranked customers by expected revenue loss with plain-English SHAP reasons, identifying 22% of active
   customers who carry 63% of expected loss, and used an LLM (Claude) to turn each customer's risk
   factors into a retention brief.
+- Built a model-based what-if simulator that prices retention offers before launch, showing that
+  only auto-pay migration clears its cost at default assumptions while discounts barely move risk.
 
 ## Data
 

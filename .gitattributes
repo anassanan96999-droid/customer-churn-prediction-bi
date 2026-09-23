@@ -1,5 +1,6 @@
 # Normalise text to LF in the repository; never touch binary files.
 * text=auto
+*.bat text eol=crlf
 *.pdf binary
 *.pkl binary
 *.png binary

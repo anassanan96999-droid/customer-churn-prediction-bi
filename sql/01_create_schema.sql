@@ -51,6 +51,7 @@ FROM raw_customers
 WHERE customerID IS NOT NULL
 GROUP BY customerID;   -- collapses any duplicated customer record
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_customers_id ON customers (customer_id);
 CREATE INDEX IF NOT EXISTS idx_customers_churn    ON customers (churn);
 CREATE INDEX IF NOT EXISTS idx_customers_contract ON customers (contract);
 CREATE INDEX IF NOT EXISTS idx_customers_tenure   ON customers (tenure);

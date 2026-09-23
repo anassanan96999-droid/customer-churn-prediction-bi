@@ -4,12 +4,15 @@ import streamlit as st
 from common import (BAR, INK_3, SERIES, chart, hbar, load_csv, load_report, load_scored,
                     money, style)
 from src.config import FEATURE_LABELS
+from theme import hero, section
 
-st.title("Churn drivers & segments")
 report = load_report()
-st.caption(f"Explanations come from SHAP on the champion model ({report['champion']}), computed "
-           "out-of-fold for all 7,043 customers and summed back from encoded columns to the "
-           "business feature they came from.")
+hero("Churn drivers & segments",
+     f"Why customers leave, from SHAP on the champion model ({report['champion']}) - computed "
+     "out-of-fold for all 7,043 customers and summed back from encoded columns to the business "
+     "feature they came from - cross-checked with permutation importance.",
+     eyebrow="Explainable AI",
+     chips=["SHAP", "Permutation importance", "Dependence plots", "k-means segments"])
 
 left, right = st.columns(2)
 with left:
@@ -35,7 +38,7 @@ st.caption("Two independent methods - SHAP (how much each feature moves individu
            "permutation, which is why total charges ranks low there.")
 
 st.divider()
-st.subheader("How the main drivers behave")
+section("How the main drivers behave", "each point is one customer")
 scored = load_scored().sample(3000, random_state=42)
 left, right = st.columns(2)
 for col, feature, title, fmt in ((left, "tenure", "Tenure effect by contract type", "{:.0f} months"),
@@ -58,7 +61,7 @@ st.caption("Short tenure adds a lot of risk in the first months; the effect fall
            "that. Each point is one customer; above zero means the feature raises their risk.")
 
 st.divider()
-st.subheader("Behavioural segments (k-means on tenure, monthly charges, services)")
+section("Behavioural segments", "k-means on tenure, monthly charges and number of services")
 seg = load_csv("segment_profile.csv")
 left, right = st.columns([2, 3])
 with left:

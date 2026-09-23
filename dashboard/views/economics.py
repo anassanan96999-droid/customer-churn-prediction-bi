@@ -4,20 +4,21 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from common import (BAR, INK_3, SERIES, chart, curve_for, economics, load_report,
-                    load_threshold_report, money, style, threshold)
+                    load_threshold_report, money, money_short, style, threshold)
 from src import config
 from src.economics import campaign_outcome, expected_value_target
+from theme import hero, section
 
-st.title("Campaign economics")
-st.markdown(
-    "A churn model outputs a probability; **who to call is a money decision**. Each contact "
-    "costs the offer, whether or not the customer would have left. Each churner we reach is "
-    "saved with some probability and is worth their margin over the planning horizon. "
-    "Change the assumptions below: the contact threshold used across the dashboard is "
-    "re-optimised for them.")
+hero("Campaign economics",
+     "A churn model outputs a probability; who to call is a money decision. Each contact costs the "
+     "offer whether or not the customer would have left; each churner reached is saved with some "
+     "probability and is worth their margin. Move the sliders - the contact threshold used across "
+     "the whole dashboard is re-optimised live.",
+     eyebrow="Decide with money, not accuracy",
+     chips=["Live threshold optimisation", "Backtest on 7,043 customers", "5 targeting rules"])
 
 econ = economics()
-with st.container(border=True):
+with st.container(key="glass_assumptions"):
     c = st.columns(4)
     offer = c[0].slider("Offer cost per contact ($)", 5, 100, int(econ.offer_cost), 5)
     save = c[1].slider("Save rate (share of contacted churners kept)", 0.05, 0.80,
@@ -38,12 +39,12 @@ at = lambda th: curve.loc[np.isclose(curve["threshold"], th)].iloc[0]  # noqa: E
 best, default = at(t), at(0.5)
 uplift = best["net_value"] - default["net_value"]
 
-st.subheader("Backtest on last month's churn (all 7,043 customers, out-of-fold scores)")
+section("Backtest on last month's churn", "all 7,043 customers, out-of-fold scores")
 m = st.columns(4)
 m[0].metric("Money-optimal threshold", f"{t:.2f}", border=True,
             help="The threshold chosen by the pipeline on training data when the assumptions "
                  "are the defaults; re-optimised on all out-of-fold scores otherwise.")
-m[1].metric("Net value at this threshold", money(best["net_value"]), border=True,
+m[1].metric("Net value at threshold", money_short(best["net_value"]), border=True,
             delta=f"{money(uplift)} vs. 0.50 threshold")
 m[2].metric("Customers contacted", f"{int(best['contacted']):,}", border=True,
             delta=f"{int(best['contacted'] - default['contacted']):+,} vs. 0.50", delta_color="off")
@@ -67,7 +68,7 @@ fig.update_yaxes(tickprefix="$", tickformat=",.0f")
 chart(style(fig, 420, "Campaign value by decision threshold"))
 
 # --------------------------------------------------------------------------- #
-st.subheader("Targeting rules compared")
+section("Targeting rules compared")
 s = pd.read_csv(config.SCORED_CSV)
 y, p, mc = s["churn"], s["churn_probability"], s["monthly_charges"]
 rules = [("Contact nobody", np.zeros(len(s), bool)), ("Contact everyone", np.ones(len(s), bool)),
